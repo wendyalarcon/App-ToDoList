@@ -1,0 +1,102 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
+<!-- Paper Elements  -->
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="form-list">
+  <template>
+  <!-- Estilo css  -->
+    <style>
+      :host {
+        display: block;
+      }
+      paper-input {
+        margin: 20px 220px 15px 70px;
+      }
+      paper-material {
+        background-color: rgba(248, 244, 244, 0.904);
+      }
+      #boxtarea {
+        margin: 50px 400px 15px 150px;
+        width: 80%;
+        max-width: none;
+        height: 80px;
+        text-align: center;
+        border-radius: 20px 10px; 
+      }
+      paper-dialog {
+        width: 400px;
+      }
+      paper-dialog.warning {
+        border: 1px solid;
+        border-color: #ee2a2ada;
+        background-color: #f1f8e9;
+        color: #242323;
+      }
+      paper-button.indigo {
+        background-color: #04B486;
+        color: white;
+        position: absolute;
+        bottom: 3vh;
+        right: 3vw;
+        font-size: 14px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      paper-button.custom {
+        --paper-button-ink-color: var(--paper-pink-a200)
+      }
+    </style> <!-- End estilo css  -->
+    
+    <paper-material id="boxtarea" elevation="5">
+      <paper-input required id="Ntarea"  label="Agregar una nueva tarea"></paper-input>
+      <paper-button raised class="custom indigo" on-tap="_sendTarea">Agregar</paper-button>
+    </paper-material>
+
+    <paper-dialog id="warning" class="warning">
+      <h3>¡La tarea está vacía!</h3>
+      <div class="buttons">
+        <paper-button class="btn-warning" dialog-dismiss autofocus>Aceptar</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <!-- Javascrit  -->
+  <script>
+    'use strict';
+
+    class FormList extends Polymer.Element {
+      static get is() { return 'form-list'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'form-list'
+          },
+        };
+      }
+      _sendTarea(e) {
+        //validar si el campo se encuentra vacio
+        if(this.$.Ntarea.value === '') {
+            this.$.warning.open();
+        } else {
+          this.dispatchEvent(new CustomEvent('save-form', {
+            bubbles: true,
+            composed: true,
+            detail: {
+              tarea: this.$.Ntarea.value
+            }
+          }));
+          this._limpiacampos();
+        }
+      }
+      _limpiacampos() {
+        this.$.Ntarea.value = '';
+      }
+    }  // End class
+    window.customElements.define(FormList.is, FormList);
+  </script>
+</dom-module>

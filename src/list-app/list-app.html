@@ -1,0 +1,257 @@
+<!-- Firebase -->
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="init-firebase.js">
+<!-- Iron Elements -->
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<!-- Paper Elements  -->
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<!-- Elements -->
+<link rel="import" href="form-list.html">
+
+<dom-module id="list-app">
+  <template>
+   <!-- Obtenemos los datos de Firebase y los guardamos en firebaseDatos -->
+   <firebase-query
+     id="query"
+     app-name="list-app"
+     path="/tareas"
+     data="{{firebaseDatos}}">
+   </firebase-query>
+
+  <!-- Estilo css -->
+    <style>
+      :host {
+        display: block;
+      }
+      .container {
+        position: relative;
+        min-height: 100vh;
+        background-color: #008080;
+      }
+      app-header {
+        background-color: #008080;
+        min-width: 100vh;
+        color: #fff;
+      }
+      app-toolbar {
+        text-align: center;
+      }
+      .logo {
+        width: 60px;
+        height: 60px;
+      }
+      .title {
+        font-size: 25px;
+        font-weight: bold;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .cards_container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .pad {
+        padding: 0 16px;
+        @apply --layout-flex;
+        @apply --layout-vertical;
+      }
+      .primary {
+        font-size: 15px;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        text-align: justify;
+      }
+      .primarys {
+        font-size: 15px;
+        font-weight: bold;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        text-align: center;
+      }
+      .item-expanded .primary {
+        display: block;
+      }
+      paper-icon-button.icon-red {
+        color: #FF0040;
+        width: 45px;
+        height: 45px;
+      }
+      paper-icon-button.icon-green {
+        color: #86B404;
+        width: 45px;
+        height: 45px;
+      }
+      .padd2 {
+        text-align: right;
+        padding-right: 17px;
+      }
+      .item {
+        @apply --layout-horizontal;
+        padding: 20px;
+        background-color:#D8D8D8;
+        border-bottom: 1px solid#A4A4A4;
+        border-top: 1px solid#A4A4A4;
+        border-left: 3px solid #A4A4A4;
+        border-right: 3px solid #A4A4A4;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: auto;
+        width: 600px;
+      }
+      table {
+        table-layout: auto;
+        background-color: #9FF781;
+        border-radius: 5px;
+        width: 645px;
+        border: 2px solid #A4A4A4;
+        text-align: left;
+      }
+      paper-dialog.warning {
+        border: 1px solid;
+        border-color: #ee2a2ada;
+        background-color: #f1f8e9;
+        color: #242323;
+       }
+       paper-button.btn-warning {
+         color: #7bb82b;
+       }
+       paper-dialog.warningall {
+        border: 1px solid;
+        border-color: #ee2a2ada;
+        background-color: #f1f8e9;
+        color: #242323;
+       }
+       paper-button.btn-warningall {
+         color: #7bb82b;
+       }
+    </style> <!-- End estilo css  -->
+
+    <!-- Inicio de container -->
+    <div class="container" id="container">
+
+    <!-- Paper toolbar -->
+      <app-header slot="header" reveals effects="waterfall">
+        <app-toolbar>
+          <div class="title" main-title><iron-icon class= "logo" src="img/ico-logo.png"></iron-icon>Frontend Test</div>
+        </app-toolbar>
+      </app-header>
+    <!-- LLamado al elemento Form-list -->
+      <div>
+        <form-list slot="top" on-save-form="add"></form-list>
+      </div>
+    <!-- Visualización de las tareas -->
+      <div class="cards_container" id="cards_container">
+        <table>
+        <tr>
+          <th>ToDo List</th>
+          <th class="padd2"><paper-icon-button class="icon-green" id="btn_delete" icon="icons:delete" on-tap="confirmT"></paper-icon-button></th>
+      </tr>
+    </table>
+    <template is="dom-if" if="{{!firebaseDatos.length}}">
+      <div class="item">
+        <div id="itemvista" class="pad" >
+          <div class="primarys" >
+            No hay ToDo's, tomate un café!
+          </div> 
+        </div>
+      </div>     
+    </template>
+          <template is="dom-repeat" items="{{firebaseDatos}}" as="task">
+              <div class="item">
+                <div id="itemvista" class="pad" >
+                  <div class="primary" >
+                    {{task.tarea}}
+                  </div> 
+                </div>
+                <paper-icon-button class="icon-red" id="btn_delete" task=[[task]] icon="icons:cancel" on-tap="confirmar"></paper-icon-button>
+              </div>   
+    </template>
+      </div>
+  </div> <!-- End container-->
+
+  <!-- Validar la eliminación de las tareas-->
+    <paper-dialog id="warning" class="warning">
+      <h2>¿Eliminar Tarea?</h2>
+      <p>La tarea se eliminará permanentemente.</p>
+      <div class="buttons">
+        <paper-button class="btn-warning" dialog-dismiss>Cancelar</paper-button>
+        <paper-button class="btn-warning" on-tap="remove" autofocus>Aceptar</paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="warningall" class="warningall">
+      <h2>¿Eliminar todas las Tareas?</h2>
+      <p>Las tareas se eliminarán permanentemente.</p>
+      <div class="buttons">
+        <paper-button class="btn-warningall" dialog-dismiss>Cancelar</paper-button>
+        <paper-button class="btn-warningall" on-tap="removeT" autofocus>Aceptar</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <!-- Javascript -->
+  <script>
+  'use-strict';
+    class ListApp extends Polymer.Element {
+      constructor() {
+      super();
+        }
+      static get is() { return 'list-app'; }
+      static get properties() {
+        return {
+          firebaseDatos: {
+              type: Object
+            },
+            mandakey: {
+              type: String,
+              value: ''
+            },
+            updatekey: {
+              type: String,
+              value: ''
+            },
+            mandakeys: {
+              type: String,
+              value: ''
+            },
+    };
+   } // Termina properties
+
+        add(e) {
+          console.log('save-form event: ' + e.detail);
+          this.$.query.ref.push(e.detail);
+        console.log('Se agrego una nueva tarea');
+        }
+        confirmar(e) {
+          this.mandakey = e.currentTarget.task.$key;
+          this.$.warning.open();
+        }
+        remove(){
+          this.$.query.ref.child(this.mandakey).remove();
+          this.$.warning.close();
+          console.log('Se ha eliminado la tarea');
+        }
+
+        confirmT(e) {
+          this.mandakey = e.currentTarget;
+          this.$.warningall.open();
+        }
+        removeT(){
+          this.$.query.ref.remove();
+          this.$.warningall.close();
+          console.log('Se ha eliminado todo');
+        }
+    }
+    window.customElements.define(ListApp.is, ListApp);
+  </script>
+</dom-module>

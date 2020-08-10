@@ -1,0 +1,7 @@
+{
+  "name": "list-app",
+  "short_name": "list-app",
+  "description": "lista de tareas",
+  "start_url": "/",
+  "display": "standalone"
+}
